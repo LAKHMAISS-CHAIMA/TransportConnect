@@ -9,8 +9,10 @@ const userSchema = new mongoose.Schema({
   password: String,
   role: { type: String, enum: ["conducteur", "expediteur", "admin"], default: "expediteur" },
   isVerified: { type: Boolean, default: false },
-  isBanned: { type: Boolean, default: false }
-});
+  isBanned: { type: Boolean, default: false },
+  averageRating: { type: Number, default: 0 },
+  totalRatings: { type: Number, default: 0 }
+}, { timestamps: true });
 
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();

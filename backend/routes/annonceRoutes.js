@@ -5,9 +5,9 @@ const {getAllAnnonces, createAnnonce, updateAnnonce, deleteAnnonce,rechercherAnn
 const { protect } = require("../middlewares/authMiddleware");
 
 router.get("/", getAllAnnonces);
+router.get("/recherche", rechercherAnnonces);
 router.post("/", protect, createAnnonce);
 router.put("/:id", protect, updateAnnonce);   
 router.delete("/:id", protect, deleteAnnonce);
-router.get("/search", rechercherAnnonces);
 
 module.exports = router;

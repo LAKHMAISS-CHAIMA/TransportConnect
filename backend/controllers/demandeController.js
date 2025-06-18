@@ -12,7 +12,7 @@ const creerDemande = async (req, res) => {
 
     const nouvelleDemande = new Demande({
       annonce: annonceId,
-      expediteur: req.user.id, 
+      expediteur: req.user._id, 
       dimensions,
       poids,
       typeColis,
@@ -70,10 +70,11 @@ const updateDemandeStatut = async (req, res) => {
     res.status(500).json({ message: "Erreur serveur", error });
   }
 };
+
 const getDemandesUtilisateur = async (req, res) => {
   try {
-    const demandes = await Demande.find({ expediteur: req.user.id })
-      .populate("annonce", "lieuDepart destination date typeMarchandise") 
+    const demandes = await Demande.find({ expediteur: req.user._id })
+      .populate("annonce", "depart destination dateTrajet typeMarchandise") 
       .sort({ createdAt: -1 });
 
     res.status(200).json(demandes);
@@ -81,7 +82,6 @@ const getDemandesUtilisateur = async (req, res) => {
     res.status(500).json({ message: "Erreur serveur", error: err.message });
   }
 };
-
 
 module.exports = { creerDemande, getDemandesByAnnonce, updateDemandeStatut, getDemandesUtilisateur };
 

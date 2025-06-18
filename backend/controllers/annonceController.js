@@ -93,7 +93,7 @@ const rechercherAnnonces = async (req, res) => {
     const dateFin = new Date(date);
     dateFin.setHours(23, 59, 59, 999);
 
-    filter.dateDepart = { $gte: dateDebut, $lte: dateFin };
+    filter.dateTrajet = { $gte: dateDebut, $lte: dateFin };
   }
 
   if (typeMarchandise) {
@@ -101,12 +101,11 @@ const rechercherAnnonces = async (req, res) => {
   }
 
   try {
-    const annonces = await Annonce.find(filter).populate("conducteur", "-password");
+    const annonces = await Annonce.find(filter).populate("conducteur", "firstname lastname");
     res.status(200).json(annonces);
   } catch (err) {
     res.status(500).json({ message: "Erreur serveur", error: err.message });
   }
 };
-
 
 module.exports = { getAllAnnonces, createAnnonce, updateAnnonce, deleteAnnonce, rechercherAnnonces };

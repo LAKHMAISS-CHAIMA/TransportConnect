@@ -11,6 +11,7 @@ const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const annonceRoutes = require("./routes/annonceRoutes");
 const demandeRoutes = require("./routes/demandeRoutes");
+// const evaluationRoutes = require("./routes/evaluationRoutes");
 
 dotenv.config();
 const app = express();
@@ -41,7 +42,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/annonces", annonceRoutes);
 app.use("/api/demandes", demandeRoutes);
-
+// app.use("/api/evaluations", evaluationRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);

@@ -75,4 +75,38 @@ const deleteAnnonce = async (req, res) => {
   }
 };
 
-module.exports = { getAllAnnonces, createAnnonce, updateAnnonce, deleteAnnonce };
+const rechercherAnnonces = async (req, res) => {
+  const { depart, destination, date, typeMarchandise } = req.query;
+
+  const filter = {};
+
+  if (depart) {
+    filter.depart = { $regex: depart, $options: "i" }; 
+  }
+
+  if (destination) {
+    filter.destination = { $regex: destination, $options: "i" };
+  }
+
+  if (date) {
+    const dateDebut = new Date(date);
+    const dateFin = new Date(date);
+    dateFin.setHours(23, 59, 59, 999);
+
+    filter.dateDepart = { $gte: dateDebut, $lte: dateFin };
+  }
+
+  if (typeMarchandise) {
+    filter.typeMarchandise = { $regex: typeMarchandise, $options: "i" };
+  }
+
+  try {
+    const annonces = await Annonce.find(filter).populate("conducteur", "-password");
+    res.status(200).json(annonces);
+  } catch (err) {
+    res.status(500).json({ message: "Erreur serveur", error: err.message });
+  }
+};
+
+
+module.exports = { getAllAnnonces, createAnnonce, updateAnnonce, deleteAnnonce, rechercherAnnonces };

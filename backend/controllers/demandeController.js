@@ -1,6 +1,31 @@
 const Demande = require("../models/demandeModel");
 const Annonce = require("../models/annonceModel");
 
+const creerDemande = async (req, res) => {
+  try {
+    const { annonceId, dimensions, poids, typeColis, description } = req.body;
+
+    const annonce = await Annonce.findById(annonceId);
+    if (!annonce) {
+      return res.status(404).json({ message: "Annonce introuvable" });
+    }
+
+    const nouvelleDemande = new Demande({
+      annonce: annonceId,
+      expediteur: req.user.id, 
+      dimensions,
+      poids,
+      typeColis,
+      description,
+    });
+
+    const saved = await nouvelleDemande.save();
+    res.status(201).json(saved);
+  } catch (err) {
+    res.status(500).json({ message: "Erreur serveur", error: err.message });
+  }
+};
+
 const getDemandesByAnnonce = async (req, res) => {
   try {
     const annonce = await Annonce.findById(req.params.id);
@@ -45,6 +70,18 @@ const updateDemandeStatut = async (req, res) => {
     res.status(500).json({ message: "Erreur serveur", error });
   }
 };
+const getDemandesUtilisateur = async (req, res) => {
+  try {
+    const demandes = await Demande.find({ expediteur: req.user.id })
+      .populate("annonce", "lieuDepart destination date typeMarchandise") 
+      .sort({ createdAt: -1 });
 
-module.exports = { getDemandesByAnnonce, updateDemandeStatut };
+    res.status(200).json(demandes);
+  } catch (err) {
+    res.status(500).json({ message: "Erreur serveur", error: err.message });
+  }
+};
+
+
+module.exports = { creerDemande, getDemandesByAnnonce, updateDemandeStatut, getDemandesUtilisateur };
 

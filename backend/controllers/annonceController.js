@@ -43,7 +43,7 @@ const updateAnnonce = async (req, res) => {
     const annonce = await Annonce.findById(req.params.id);
     if (!annonce) return res.status(404).json({ message: "Annonce non trouvée" });
 
-    if (annonce.conducteur.toString() !== req.user._id.toString()) {
+    if (!req.user || annonce.conducteur.toString() !== req.user._id.toString()) {
       return res.status(401).json({ message: "Non autorisé à modifier cette annonce" });
     }
 
@@ -64,7 +64,7 @@ const deleteAnnonce = async (req, res) => {
     const annonce = await Annonce.findById(req.params.id);
     if (!annonce) return res.status(404).json({ message: "Annonce non trouvée" });
 
-    if (annonce.conducteur.toString() !== req.user._id.toString()) {
+    if (!req.user || annonce.conducteur.toString() !== req.user._id.toString()) {
       return res.status(401).json({ message: "Non autorisé à supprimer cette annonce" });
     }
 

@@ -43,7 +43,6 @@ app.use("/api/users", userRoutes);
 app.use("/api/annonces", annonceRoutes);
 app.use("/api/demandes", demandeRoutes);
 app.use("/api/evaluations", evaluationRoutes);
-app.use("/api/users", require("./routes/userRoutes"));
 
 app.use((err, req, res, next) => {
   console.error(err.stack);

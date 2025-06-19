@@ -2,19 +2,19 @@ const mongoose = require("mongoose");
 
 const evaluationSchema = new mongoose.Schema(
   {
-    auteur: {
+    evaluateur: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
-    cible: {
+    utilisateurEvalue: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
-    trajet: {
+    annonce: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Trajet",
+      ref: "Annonce",
       required: true,
     },
     note: {
@@ -26,11 +26,6 @@ const evaluationSchema = new mongoose.Schema(
     commentaire: {
       type: String,
       maxlength: 500,
-    },
-    roleCible: {
-      type: String,
-      enum: ["expediteur", "conducteur"],
-      required: true,
     },
   },
   { timestamps: true }

@@ -11,7 +11,9 @@ const annonceSchema = new mongoose.Schema({
   destination: String,
   dateTrajet: Date,
   dimensions: String,
+  prix: Number,
   typeMarchandise: String,
+  description: String,
   capaciteDisponible: Number,
 }, { timestamps: true });
 

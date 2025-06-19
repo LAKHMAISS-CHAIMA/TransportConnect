@@ -1,11 +1,8 @@
-module.exports = function authorizeRoles(...allowedRoles) {
+module.exports = (role) => {
   return (req, res, next) => {
-    const { role } = req.user;
-
-    if (!allowedRoles.includes(role)) {
-      return res.status(403).json({ message: "Accès refusé. Rôle non autorisé." });
+    if (req.user.role !== role) {
+      return res.status(403).json({ message: "Accès refusé : autorisation insuffisante" });
     }
-
     next();
   };
 };

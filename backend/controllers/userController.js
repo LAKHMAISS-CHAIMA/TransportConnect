@@ -70,4 +70,35 @@ exports.getAllUsers = async (req, res) => {
   }
 };
 
-module.exports = {getProfile, updateProfile, updateUser, getAllUsers, };
+exports.validateUser = async (req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(req.params.id, { status: "active" }, { new: true });
+    if (!user) return res.status(404).json({ message: "Utilisateur introuvable" });
+    res.json({ message: "Utilisateur validé", user });
+  } catch (err) {
+    res.status(500).json({ message: "Erreur serveur", error: err.message });
+  }
+};
+
+exports.suspendUser = async (req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(req.params.id, { status: "suspended" }, { new: true });
+    if (!user) return res.status(404).json({ message: "Utilisateur introuvable" });
+    res.json({ message: "Utilisateur suspendu", user });
+  } catch (err) {
+    res.status(500).json({ message: "Erreur serveur", error: err.message });
+  }
+};
+
+exports.deleteUser = async (req, res) => {
+  try {
+    const user = await User.findByIdAndDelete(req.params.id);
+    if (!user) return res.status(404).json({ message: "Utilisateur introuvable" });
+    res.json({ message: "Utilisateur supprimé" });
+  } catch (err) {
+    res.status(500).json({ message: "Erreur serveur", error: err.message });
+  }
+};
+
+
+module.exports = {getProfile, updateProfile, updateUser, getAllUsers, validateUser, suspendUser,  deleteUser};

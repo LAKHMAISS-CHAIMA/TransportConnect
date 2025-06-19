@@ -7,5 +7,8 @@ const checkRole = require("../middlewares/role");
 router.get("/me", protect, userController.getProfile);
 router.put("/profile", protect, userController.updateProfile);
 router.get("/", auth, checkRole("admin"), userController.getAllUsers);
+router.put("/validate/:id", auth, checkRole("admin"), userController.validateUser);
+router.put("/suspend/:id", auth, checkRole("admin"), userController.suspendUser);
+router.delete("/:id", auth, checkRole("admin"), userController.deleteUser);
 
 module.exports = router;

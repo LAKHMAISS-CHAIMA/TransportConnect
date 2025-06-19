@@ -11,7 +11,9 @@ const userSchema = new mongoose.Schema({
   isVerified: { type: Boolean, default: false },
   isBanned: { type: Boolean, default: false },
   averageRating: { type: Number, default: 0 },
-  totalRatings: { type: Number, default: 0 }
+  totalRatings: { type: Number, default: 0 },
+  status: { type: String, enum: ['pending', 'active', 'suspended'], default: 'pending' },
+
 }, { timestamps: true });
 
 userSchema.pre("save", async function (next) {

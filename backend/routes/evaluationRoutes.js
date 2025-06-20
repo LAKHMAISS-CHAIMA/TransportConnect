@@ -1,22 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const evaluationController = require("../controllers/evaluationController");
-const ratingController = require("../controllers/rating.controller");
-const auth = require("../middlewares/auth");
+const { protect } = require("../middlewares/authMiddleware");
 
-
-router.post("/", auth, evaluationController.creerEvaluation);
-
+router.post("/", protect, evaluationController.creerEvaluation);
 router.get("/utilisateur/:userId", evaluationController.getEvaluationsUtilisateur);
-
 router.get("/annonce/:annonceId", evaluationController.getEvaluationsAnnonce);
-
-router.delete("/:evaluationId", auth, evaluationController.supprimerEvaluation);
-
-
-router.post("/rating", auth, ratingController.leaveRating);
-
-router.get("/rating/:userId", ratingController.getUserRatings);
-
+router.delete("/:evaluationId", protect, evaluationController.supprimerEvaluation);
 
 module.exports = router;

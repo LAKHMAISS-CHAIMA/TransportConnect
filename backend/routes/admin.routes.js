@@ -5,11 +5,14 @@ const checkRole = require("../middlewares/roleMiddleware");
 
 router.use(protect, checkRole("admin"));
 
-router.get("/dashboard", adminController.getStats);
-router.get("/users", adminController.getUsers);
-router.put("/users/:id/verify", adminController.verifyUser);
-router.put("/users/:id/ban", adminController.banUser);
-router.delete("/trips/:id", adminController.deleteTrip);
-router.put("/verify/:userId", protect, checkRole("admin"), adminController.verifyUser);
+router.get("/users", adminController.getAllUsers);
+router.put("/users/:userId/verify", adminController.verifyUser);
+router.put("/users/:userId/suspend", adminController.suspendUser);
+router.delete("/users/:userId", adminController.deleteUser);
+
+router.get("/annonces", adminController.getAllAnnonces);
+router.delete("/annonces/:annonceId", adminController.deleteAnnonce);
+
+router.get("/stats", adminController.getStats);
 
 module.exports = router;

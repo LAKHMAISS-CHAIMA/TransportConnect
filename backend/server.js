@@ -4,25 +4,16 @@ const cors = require("cors");
 const morgan = require("morgan");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
-const { createServer } = require("http");
-const { Server } = require("socket.io");
 
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const annonceRoutes = require("./routes/annonceRoutes");
 const demandeRoutes = require("./routes/demandeRoutes");
 const evaluationRoutes = require("./routes/evaluationRoutes");
+const adminRoutes = require("./routes/admin.routes");
 
 dotenv.config();
 const app = express();
-const server = createServer(app);
-
-const io = new Server(server, {
-  cors: {
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
-    methods: ["GET", "POST"]
-  }
-});
 
 app.use(helmet());
 app.disable("x-powered-by");
@@ -43,6 +34,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/annonces", annonceRoutes);
 app.use("/api/demandes", demandeRoutes);
 app.use("/api/evaluations", evaluationRoutes);
+app.use("/api/admin", adminRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
@@ -57,8 +49,8 @@ app.use("*", (req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
+app.listen(PORT, () => {
   console.log(` Server running on port ${PORT}`);
 });
 
-module.exports = { app, io };
+module.exports = { app };

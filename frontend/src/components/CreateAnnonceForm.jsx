@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { API_BASE_URL } from '../config';
 
 const CreateAnnonceForm = () => {
   const [formData, setFormData] = useState({
@@ -25,7 +26,7 @@ const CreateAnnonceForm = () => {
       const token = localStorage.getItem("token");
 
       const res = await axios.post(
-        "http://localhost:5000/api/annonces",
+        `${API_BASE_URL}/annonces`,
         formData,
         {
           headers: {
@@ -33,7 +34,7 @@ const CreateAnnonceForm = () => {
           },
         }
       );
-      alert("Annonce créée avec succès !");
+      alert(" Annonce créée avec succès !");
       setFormData({
         depart: "",
         etapes: "",
@@ -45,81 +46,46 @@ const CreateAnnonceForm = () => {
       });
     } catch (err) {
       console.error(err);
-      alert("Erreur lors de la création !");
+      alert(" Erreur lors de la création !");
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-xl mx-auto p-6 bg-white rounded shadow space-y-4">
-      <h2 className="text-2xl font-bold text-center">Créer une annonce</h2>
+    <form onSubmit={handleSubmit} className="bg-white p-6 rounded-xl shadow-lg max-w-2xl mx-auto space-y-4">
+      <h2 className="text-2xl font-bold text-center text-zellige">Créer une annonce</h2>
 
-      <input
-        type="text"
-        name="depart"
-        placeholder="Lieu de départ"
-        value={formData.depart}
-        onChange={handleChange}
-        className="input-style"
-      />
-
-      <input
-        type="text"
-        name="etapes"
-        placeholder="Étapes intermédiaires (optionnel)"
-        value={formData.etapes}
-        onChange={handleChange}
-        className="input-style"
-      />
-
-      <input
-        type="text"
-        name="destination"
-        placeholder="Destination"
-        value={formData.destination}
-        onChange={handleChange}
-        className="input-style"
-      />
+      {[
+        { name: "depart", placeholder: "Lieu de départ" },
+        { name: "etapes", placeholder: "Étapes intermédiaires (optionnel)" },
+        { name: "destination", placeholder: "Destination" },
+        { name: "dimensions", placeholder: "Dimensions max (ex: 1m x 1m x 2m)" },
+        { name: "typeMarchandise", placeholder: "Type de marchandise" },
+        { name: "capaciteDisponible", placeholder: "Capacité dispo (kg)", type: "number" },
+      ].map(({ name, placeholder, type = "text" }) => (
+        <input
+          key={name}
+          type={type}
+          name={name}
+          placeholder={placeholder}
+          value={formData[name]}
+          onChange={handleChange}
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-zellige"
+        />
+      ))}
 
       <input
         type="date"
         name="dateTrajet"
         value={formData.dateTrajet}
         onChange={handleChange}
-        className="input-style"
-      />
-
-      <input
-        type="text"
-        name="dimensions"
-        placeholder="Dimensions maximales (ex: 1m x 1m x 2m)"
-        value={formData.dimensions}
-        onChange={handleChange}
-        className="input-style"
-      />
-
-      <input
-        type="text"
-        name="typeMarchandise"
-        placeholder="Type de marchandise"
-        value={formData.typeMarchandise}
-        onChange={handleChange}
-        className="input-style"
-      />
-
-      <input
-        type="number"
-        name="capaciteDisponible"
-        placeholder="Capacité disponible (kg)"
-        value={formData.capaciteDisponible}
-        onChange={handleChange}
-        className="input-style"
+        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-zellige"
       />
 
       <button
         type="submit"
-        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded"
+        className="w-full bg-zellige hover:bg-green-700 text-white font-bold py-2 rounded-lg transition"
       >
-        Publier l’annonce
+        Publier l'annonce
       </button>
     </form>
   );

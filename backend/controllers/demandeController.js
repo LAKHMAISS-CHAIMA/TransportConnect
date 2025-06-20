@@ -1,5 +1,6 @@
 const Demande = require("../models/demandeModel");
 const Annonce = require("../models/annonceModel");
+const sendNotification = require("../utils/sendNotification");
 
 const creerDemande = async (req, res) => {
   try {
@@ -20,6 +21,13 @@ const creerDemande = async (req, res) => {
     });
 
     const saved = await nouvelleDemande.save();
+
+    await sendNotification(
+      annonce.conducteur,
+      "request",
+      `Vous avez reçu une nouvelle demande sur votre annonce.`
+    );
+
     res.status(201).json(saved);
   } catch (err) {
     res.status(500).json({ message: "Erreur serveur", error: err.message });
@@ -64,6 +72,12 @@ const updateDemandeStatut = async (req, res) => {
 
     demande.statut = statut;
     await demande.save();
+
+    await sendNotification(
+      demande.expediteur,
+      "request",
+      `Votre demande a été ${statut}.`
+    );
 
     res.status(200).json({ message: `Demande ${statut}` });
   } catch (error) {

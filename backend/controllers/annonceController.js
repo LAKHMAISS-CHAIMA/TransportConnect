@@ -108,4 +108,14 @@ const rechercherAnnonces = async (req, res) => {
   }
 };
 
-module.exports = { getAllAnnonces, createAnnonce, updateAnnonce, deleteAnnonce, rechercherAnnonces };
+const getMesAnnonces = async (req, res) => {
+  try {
+    const annonces = await Annonce.find({ conducteur: req.user._id })
+      .sort({ dateTrajet: -1 });
+    res.json(annonces);
+  } catch (error) {
+    res.status(500).json({ message: "Erreur lors de la récupération de vos annonces." });
+  }
+};
+
+module.exports = { getAllAnnonces, createAnnonce, updateAnnonce, deleteAnnonce, rechercherAnnonces, getMesAnnonces };

@@ -25,7 +25,8 @@ const creerDemande = async (req, res) => {
     await sendNotification(
       annonce.conducteur,
       "request",
-      `Vous avez reçu une nouvelle demande sur votre annonce.`
+      `Vous avez reçu une nouvelle demande sur votre annonce.`,
+      saved._id
     );
 
     res.status(201).json(saved);
@@ -44,7 +45,7 @@ const getDemandesByAnnonce = async (req, res) => {
       return res.status(403).json({ message: "Accès interdit" });
     }
 
-    const demandes = await Demande.find({ annonce: req.params.id }).populate("expediteur", "firstname lastname email");
+    const demandes = await Demande.find({ annonce: req.params.id }).populate("expediteur", "name email");
 
     res.status(200).json(demandes);
   } catch (error) {
@@ -60,7 +61,7 @@ const updateDemandeStatut = async (req, res) => {
   }
 
   try {
-    const demande = await Demande.findById(req.params.id).populate("annonce");
+    let demande = await Demande.findById(req.params.id).populate("annonce");
 
     if (!demande) {
       return res.status(404).json({ message: "Demande non trouvée" });
@@ -71,24 +72,36 @@ const updateDemandeStatut = async (req, res) => {
     }
 
     demande.statut = statut;
-    await demande.save();
+    const updatedDemande = await demande.save();
 
     await sendNotification(
       demande.expediteur,
       "request",
-      `Votre demande a été ${statut}.`
+      `Votre demande concernant l'annonce "${demande.annonce.titre}" a été ${statut}.`,
+      updatedDemande._id
     );
 
-    res.status(200).json({ message: `Demande ${statut}` });
+    const result = await Demande.findById(updatedDemande._id)
+      .populate('expediteur', 'name')
+      .populate('annonce');
+
+    res.status(200).json(result);
   } catch (error) {
-    res.status(500).json({ message: "Erreur serveur", error });
+    res.status(500).json({ message: "Erreur serveur", error: error.message });
   }
 };
 
 const getDemandesUtilisateur = async (req, res) => {
   try {
     const demandes = await Demande.find({ expediteur: req.user._id })
-      .populate("annonce", "depart destination dateTrajet typeMarchandise") 
+      .populate({
+        path: "annonce",
+        select: "depart destination dateTrajet conducteur",
+        populate: {
+          path: "conducteur",
+          select: "name firstname"
+        }
+      })
       .sort({ createdAt: -1 });
 
     res.status(200).json(demandes);
@@ -97,5 +110,53 @@ const getDemandesUtilisateur = async (req, res) => {
   }
 };
 
-module.exports = { creerDemande, getDemandesByAnnonce, updateDemandeStatut, getDemandesUtilisateur };
+const updateDemandePaiement = async (req, res) => {
+  try {
+    const demande = await Demande.findById(req.params.id);
+
+    if (!demande) {
+      return res.status(404).json({ message: "Demande non trouvée" });
+    }
+
+    if (demande.expediteur.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "Non autorisé" });
+    }
+    
+    demande.statut = 'payée';
+    await demande.save();
+
+    res.status(200).json({ message: "Statut de la demande mis à jour à 'payée'" });
+  } catch (error) {
+    res.status(500).json({ message: "Erreur serveur", error: error.message });
+  }
+};
+
+const deleteDemande = async (req, res) => {
+  try {
+    const demande = await Demande.findById(req.params.id);
+
+    if (!demande) {
+      return res.status(404).json({ message: "Demande non trouvée" });
+    }
+
+    if (demande.expediteur.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "Action non autorisée." });
+    }
+
+    await demande.deleteOne();
+
+    res.status(200).json({ message: "Demande annulée avec succès." });
+  } catch (error) {
+    res.status(500).json({ message: "Erreur serveur", error: error.message });
+  }
+};
+
+module.exports = { 
+  creerDemande, 
+  getDemandesByAnnonce, 
+  updateDemandeStatut, 
+  getDemandesUtilisateur,
+  updateDemandePaiement,
+  deleteDemande
+};
 

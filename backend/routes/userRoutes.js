@@ -6,6 +6,7 @@ const checkRole = require("../middlewares/roleMiddleware");
 
 router.get("/me", protect, userController.getProfile);
 router.put("/profile", protect, userController.updateProfile);
+router.get("/profile/stats", protect, userController.getUserStats);
 router.get("/", protect, checkRole("admin"), userController.getAllUsers);
 router.put("/validate/:id", protect, checkRole("admin"), userController.validateUser);
 router.put("/suspend/:id", protect, checkRole("admin"), userController.suspendUser);

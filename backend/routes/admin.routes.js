@@ -1,4 +1,5 @@
-const router = require("express").Router();
+const express = require('express');
+const router = express.Router();
 const adminController = require("../controllers/adminController");
 const { protect } = require("../middlewares/authMiddleware");
 const checkRole = require("../middlewares/roleMiddleware");
@@ -13,6 +14,9 @@ router.delete("/users/:userId", adminController.deleteUser);
 router.get("/annonces", adminController.getAllAnnonces);
 router.delete("/annonces/:annonceId", adminController.deleteAnnonce);
 
+router.get("/demandes", adminController.getAllDemandes);
+
 router.get("/stats", adminController.getStats);
+router.get("/stats/graph", adminController.getGraphStats);
 
 module.exports = router;

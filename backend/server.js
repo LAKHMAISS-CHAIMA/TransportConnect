@@ -2,8 +2,8 @@ const express = require("express");
 const helmet = require("helmet");
 const cors = require("cors");
 const morgan = require("morgan");
-const mongoose = require("mongoose");
 const dotenv = require("dotenv");
+const connectDB = require("./config/db");
 
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
@@ -11,8 +11,10 @@ const annonceRoutes = require("./routes/annonceRoutes");
 const demandeRoutes = require("./routes/demandeRoutes");
 const evaluationRoutes = require("./routes/evaluationRoutes");
 const adminRoutes = require("./routes/admin.routes");
+const notificationRoutes = require("./routes/notificationRoutes");
 
 dotenv.config();
+connectDB();
 const app = express();
 
 app.use(helmet());
@@ -25,16 +27,13 @@ app.use(morgan("combined"));
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 
-mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/transportconnect")
-  .then(() => console.log(" Connected to MongoDB"))
-  .catch(err => console.error(" MongoDB connection error:", err));
-
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/annonces", annonceRoutes);
 app.use("/api/demandes", demandeRoutes);
 app.use("/api/evaluations", evaluationRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);

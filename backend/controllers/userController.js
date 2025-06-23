@@ -14,35 +14,39 @@ const getProfile = async (req, res) => {
 
 const updateProfile = async (req, res) => {
   try {
-    const { name, password } = req.body;
-    
+    const { firstname, lastname, email, phone, password } = req.body;
     const user = await User.findById(req.user._id);
     if (!user) {
       return res.status(404).json({ message: "Utilisateur non trouvé." });
     }
 
-    if (name) {
-      user.name = name;
-    }
-
-    if (password) {
-      user.password = password;
-    }
+    if (firstname) user.firstname = firstname;
+    if (lastname) user.lastname = lastname;
+    if (email) user.email = email;
+    if (phone) user.phone = phone;
+    if (password) user.password = password;
 
     const updatedUser = await user.save();
 
     res.json({
       message: "Profil mis à jour avec succès.",
-      user: { 
+      user: {
         _id: updatedUser._id,
-        name: updatedUser.name,
+        firstname: updatedUser.firstname,
+        lastname: updatedUser.lastname,
         email: updatedUser.email,
+        phone: updatedUser.phone,
         role: updatedUser.role,
-        noteMoyenne: updatedUser.noteMoyenne
+        isVerified: updatedUser.isVerified,
+        isBanned: updatedUser.isBanned,
+        badge: updatedUser.badge,
+        averageRating: updatedUser.averageRating,
+        totalRatings: updatedUser.totalRatings,
+        status: updatedUser.status
       },
     });
   } catch (error) {
-    res.status(500).json({ message: "Erreur lors de la mise à jour du profil." });
+    res.status(500).json({ message: "Erreur lors de la mise à jour du profil.", error: error.message });
   }
 };
 

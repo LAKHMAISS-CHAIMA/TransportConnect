@@ -110,27 +110,6 @@ const getDemandesUtilisateur = async (req, res) => {
   }
 };
 
-const updateDemandePaiement = async (req, res) => {
-  try {
-    const demande = await Demande.findById(req.params.id);
-
-    if (!demande) {
-      return res.status(404).json({ message: "Demande non trouvée" });
-    }
-
-    if (demande.expediteur.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ message: "Non autorisé" });
-    }
-    
-    demande.statut = 'payée';
-    await demande.save();
-
-    res.status(200).json({ message: "Statut de la demande mis à jour à 'payée'" });
-  } catch (error) {
-    res.status(500).json({ message: "Erreur serveur", error: error.message });
-  }
-};
-
 const deleteDemande = async (req, res) => {
   try {
     const demande = await Demande.findById(req.params.id);
@@ -156,7 +135,6 @@ module.exports = {
   getDemandesByAnnonce, 
   updateDemandeStatut, 
   getDemandesUtilisateur,
-  updateDemandePaiement,
   deleteDemande
 };
 

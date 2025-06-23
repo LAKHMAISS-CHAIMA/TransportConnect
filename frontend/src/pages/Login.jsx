@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import * as Yup from 'yup';
+import toast from 'react-hot-toast';
 
 const loginSchema = Yup.object().shape({
   email: Yup.string()
@@ -42,8 +43,13 @@ export default function Login() {
 
     try {
       await loginSchema.validate(formData, { abortEarly: false });
-      await login(formData);
-      navigate('/dashboard');
+      const result = await login(formData.email, formData.password);
+      if (result.success) {
+        toast.success('Connexion réussie !');
+        navigate('/dashboard');
+      } else {
+        toast.error(result.message || 'Email ou mot de passe incorrect.');
+      }
     } catch (err) {
       if (err instanceof Yup.ValidationError) {
         const validationErrors = err.inner.reduce((acc, error) => {
@@ -51,8 +57,9 @@ export default function Login() {
           return acc;
         }, {});
         setErrors(validationErrors);
+        toast.error('Veuillez corriger les erreurs du formulaire.');
       } else {
-        setServerError(err.response?.data?.message || 'Email ou mot de passe incorrect.');
+        toast.error(err.response?.data?.message || 'Email ou mot de passe incorrect.');
       }
     }
     setLoading(false);

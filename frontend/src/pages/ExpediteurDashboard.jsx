@@ -5,7 +5,6 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import ActivityChart from "../components/ActivityChart";
 import PieChart from "../components/PieChart";
-import Paiement from "../components/Paiement";
 
 const StarRating = ({ rating, setRating }) => (
   <div className="flex">
@@ -35,9 +34,6 @@ export default function ExpediteurDashboard() {
 
   const [demandesByMonth, setDemandesByMonth] = useState([]);
   const [demandesStatus, setDemandesStatus] = useState({});
-
-  const [showPaiementModal, setShowPaiementModal] = useState(false);
-  const [demandeAPayer, setDemandeAPayer] = useState(null);
 
   const fetchDemandes = async () => {
     setLoading(true);
@@ -120,24 +116,6 @@ export default function ExpediteurDashboard() {
     }
   };
 
-  const handleOpenPaiementModal = (demande) => {
-    setDemandeAPayer(demande);
-    setShowPaiementModal(true);
-  };
-  
-  const handlePaiementSuccess = async (demandeId) => {
-    try {
-      await axios.put(`/api/demandes/${demandeId}/payer`);
-      setDemandes(demandes.map(d => 
-        d._id === demandeId ? { ...d, statut: 'payée' } : d
-      ));
-      setMessage("Paiement effectué avec succès !");
-    } catch (err) {
-      setError("Erreur lors de la mise à jour du statut après paiement.");
-    }
-    setShowPaiementModal(false);
-  };
-
   return (
     <div className="min-h-screen bg-[#fdf6e3] p-4 sm:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
@@ -181,14 +159,11 @@ export default function ExpediteurDashboard() {
                       <th className="py-2 px-4">Date de la demande</th>
                       <th className="py-2 px-4">Conducteur</th>
                       <th className="py-2 px-4">Statut</th>
-                      <th className="py-2 px-4">Action</th>
                     </tr>
                   </thead>
                   <tbody>
                     {demandes.map((d) => {
-                      const isTrajetTermine = new Date(d.annonce?.dateTrajet) < new Date();
-                      const peutPayer = d.statut === 'acceptée' && !isTrajetTermine;
-                      const peutEvaluer = d.statut === 'payée' && isTrajetTermine;
+                      const peutEvaluer = d.statut === 'payée';
 
                       return (
                         <tr key={d._id} className="border-b">
@@ -203,9 +178,6 @@ export default function ExpediteurDashboard() {
                           <td className="py-2 px-4 flex gap-2">
                             {d.statut === "en attente" && (
                               <button onClick={() => handleCancelDemande(d._id)} className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm">Annuler</button>
-                            )}
-                            {peutPayer && (
-                              <button onClick={() => handleOpenPaiementModal(d)} className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm">Payer</button>
                             )}
                             {peutEvaluer && (
                               <button onClick={() => handleOpenEvalModal(d.annonce)} className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded text-sm">Évaluer</button>
@@ -248,17 +220,6 @@ export default function ExpediteurDashboard() {
                 <button type="submit" className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded">Envoyer</button>
               </div>
             </form>
-          </div>
-        </div>
-      )}
-      {showPaiementModal && demandeAPayer && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md relative">
-            <button onClick={() => setShowPaiementModal(false)} className="absolute top-2 right-4 text-2xl">&times;</button>
-            <Paiement 
-              demande={demandeAPayer}
-              onSuccess={() => handlePaiementSuccess(demandeAPayer._id)}
-            />
           </div>
         </div>
       )}

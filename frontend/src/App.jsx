@@ -13,6 +13,7 @@ import Notifications from "./pages/Notifications";
 import HistoriqueTrajets from "./pages/HistoriqueTrajets";
 import NotFound from "./pages/NotFound";
 import Navbar from "./components/Navbar";
+import { Toaster } from 'react-hot-toast';
 
 function PrivateRoute({ children, allowedRoles }) {
   const { isAuthenticated, loading, user } = useAuth();
@@ -39,7 +40,7 @@ function AppRoutes() {
     <>
       {!hideNavbar && <Navbar />}
       <Routes>
-        <Route path="/" element={<Navigate to="/dashboard" />} />
+        <Route path="/" element={<Navigate to="/login" />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
@@ -58,6 +59,7 @@ function App() {
   return (
     <AuthProvider>
       <Router>
+        <Toaster position="top-right" />
         <AppRoutes />
       </Router>
     </AuthProvider>

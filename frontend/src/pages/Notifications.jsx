@@ -73,9 +73,12 @@ export default function Notifications() {
   return (
     <div className="min-h-screen bg-[#fdf6e3] p-4 sm:p-6 lg:p-8">
       <div className="max-w-4xl mx-auto">
-        <div className="mb-8 p-6 bg-[#2a6f97] rounded-2xl shadow-lg text-white">
-          <h1 className="text-4xl font-bold font-serif"> Notifications</h1>
-          <p className="mt-2 text-blue-200">Restez à jour sur l'activité de votre compte.</p>
+        <div className="mb-8 p-6 bg-[#2a6f97] rounded-2xl shadow-lg text-white flex items-center gap-4">
+          <span className="text-4xl">🔔</span>
+          <div>
+            <h1 className="text-4xl font-bold font-serif">Notifications</h1>
+            <p className="mt-2 text-blue-200">Restez à jour sur l'activité de votre compte.</p>
+          </div>
         </div>
 
         {loading ? (
@@ -89,12 +92,17 @@ export default function Notifications() {
                 notifications.map((notif) => (
                   <li
                     key={notif._id}
-                    className={`p-4 flex justify-between items-center transition-colors duration-300 ${!notif.read ? 'bg-[#fdf6e3]' : 'hover:bg-gray-50'}`}
+                    className={`p-4 flex justify-between items-center transition-colors duration-300 ${!notif.read ? 'bg-[#e0f2fe]' : 'hover:bg-gray-50'}`}
                   >
                     <div className="flex items-center gap-4">
                       <span className="text-2xl mt-1">{getIconForType(notif.type)}</span>
                       <div className="flex-grow">
-                        <p className={`font-medium ${!notif.read && 'font-bold'}`}>{notif.message}</p>
+                        <p className={`font-medium ${!notif.read && 'font-bold'} flex items-center gap-2`}>
+                          {notif.type === 'approval' && <span className="inline-block bg-green-100 text-green-800 px-2 py-0.5 rounded-full text-xs font-semibold">Validée</span>}
+                          {notif.type === 'request' && <span className="inline-block bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full text-xs font-semibold">Demande</span>}
+                          {notif.type === 'admin' && <span className="inline-block bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full text-xs font-semibold">Admin</span>}
+                          {notif.message}
+                        </p>
                         <p className="text-sm text-gray-500 mt-1">
                           {formatDistanceToNow(new Date(notif.createdAt), { addSuffix: true, locale: fr })}
                         </p>
@@ -104,7 +112,7 @@ export default function Notifications() {
                       {notif.demande && (
                         <button 
                           onClick={() => handleShowDetails(notif.demande)} 
-                          className="text-sm bg-[#2a6f97] text-white px-3 py-1 rounded-md hover:bg-opacity-90"
+                          className="text-sm bg-[#2a6f97] text-white px-3 py-1 rounded-md hover:bg-opacity-90 shadow"
                         >
                           Détails
                         </button>
@@ -114,7 +122,8 @@ export default function Notifications() {
                       )}
                       <button
                         onClick={() => handleDelete(notif._id)}
-                        className="text-gray-400 hover:text-[#c1272d] transition-colors"
+                        className="text-gray-400 hover:text-[#c1272d] transition-colors text-xl font-bold"
+                        title="Supprimer"
                       >
                         ×
                       </button>

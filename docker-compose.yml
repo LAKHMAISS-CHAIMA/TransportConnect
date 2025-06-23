@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    container_name: transportconnect-backend
+    ports:
+      - "5000:5000"
+    environment:
+      # On utilise le nom du service 'mongo' comme hostname pour la connexion
+      MONGO_URI: mongodb://mongo:27017/transportconnect
+      JWT_SECRET: changez_moi_pour_un_vrai_secret_en_production
+      FRONTEND_URL: http://localhost:5173
+      PORT: 5000
+      NODE_ENV: production
+    networks:
+      - transport-connect-net
+    depends_on:
+      - mongo
+
+  frontend:
+    build: ./frontend
+    container_name: transportconnect-frontend
+    ports:
+      - "5173:80" # Map le port 5173 de l'hôte au port 80 du conteneur Nginx
+    networks:
+      - transport-connect-net
+    depends_on:
+      - backend
+
+  mongo:
+    image: mongo:latest
+    container_name: transportconnect-db
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - transport-connect-net
+
+volumes:
+  mongo-data:
+    driver: local
+
+networks:
+  transport-connect-net:
+    driver: bridge 

@@ -10,20 +10,20 @@ const generateToken = (user) => {
       email: user.email,
     },
     process.env.JWT_SECRET,
-    { expiresIn: process.env.JWT_EXPIRES_IN }
+    { expiresIn: '1d' }
   );
 };
 
 exports.register = async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { firstname, lastname, email, phone, password, role } = req.body;
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: 'Cet email est déjà utilisé.' });
     }
 
-    const user = new User({ name, email, password, role });
+    const user = new User({ firstname, lastname, email, phone, password, role });
     const savedUser = await user.save();
 
     try {
@@ -32,14 +32,14 @@ exports.register = async (req, res) => {
         await sendNotification(
           admin._id,
           'admin',
-          `Nouvel utilisateur inscrit: ${savedUser.name} (${savedUser.email})`
+          `Nouvel utilisateur inscrit: ${savedUser.firstname} ${savedUser.lastname} (${savedUser.email})`
         );
       }
     } catch (notifError) {
       console.error("Erreur lors de l'envoi de la notification aux admins:", notifError);
     }
 
-    const token = jwt.sign({ id: savedUser._id, role: savedUser.role }, process.env.JWT_SECRET, { expiresIn: '1d' });
+    const token = generateToken(savedUser);
     res.status(201).json({ token, user: savedUser });
 
   } catch (error) {
@@ -50,8 +50,8 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
-
     const user = await User.findOne({ email });
+
     if (!user) return res.status(400).json({ message: "Email incorrect." });
 
     const isMatch = await user.comparePassword(password);
@@ -62,7 +62,8 @@ exports.login = async (req, res) => {
     const token = generateToken(user);
     res.json({ token, user });
   } catch (err) {
-    res.status(500).json({ message: "Erreur serveur." });
+    console.error('Erreur login:', err);
+    res.status(500).json({ message: "Erreur serveur interne" });
   }
 };
 

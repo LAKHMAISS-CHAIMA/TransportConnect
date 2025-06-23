@@ -89,9 +89,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (userData) => {
     try {
-      const res = await axios.post(`${API_BASE_URL}/auth/register`, userData);
-      localStorage.setItem('token', res.data.token);
-      dispatch({ type: 'LOGIN_SUCCESS', payload: res.data });
+      await axios.post(`${API_BASE_URL}/auth/register`, userData);
       return { success: true };
     } catch (error) {
       return {

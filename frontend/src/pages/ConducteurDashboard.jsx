@@ -5,6 +5,7 @@ import ActivityChart from "../components/ActivityChart";
 import PieChart from "../components/PieChart";
 import Geolocalisation from "../components/Geolocalisation";
 import AnnonceTable from "../components/AnnonceTable";
+import CreateAnnonceForm from "../components/CreateAnnonceForm";
 
 const StarRating = ({ rating, setRating }) => (
   <div className="flex">
@@ -31,22 +32,9 @@ export default function ConducteurDashboard() {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
-  const [form, setForm] = useState({
-    depart: "",
-    etapes: "",
-    destination: "",
-    dateTrajet: "",
-    dimensions: "",
-    typeMarchandise: "",
-    capaciteDisponible: "",
-    description: "",
-    prix: ""
-  });
-  const [creating, setCreating] = useState(false);
   const [selectedDemande, setSelectedDemande] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState({ type: '', data: [] });
-
   const [showEvalModal, setShowEvalModal] = useState(false);
   const [evaluation, setEvaluation] = useState({ note: 0, commentaire: '', annonceId: null, utilisateurEvalueId: null });
 
@@ -95,102 +83,6 @@ export default function ConducteurDashboard() {
     };
     if (user?._id) fetchData();
   }, [user]);
-
-  const isFormValid = Object.values(form).every(v => v !== "");
-
-  const handleCreateAnnonce = async (e) => {
-    e.preventDefault();
-    setMessage("");
-    setError("");
-    if (!isFormValid) {
-      setError("Veuillez remplir tous les champs du formulaire.");
-      return;
-    }
-    setCreating(true);
-    try {
-      const res = await axios.post(`/api/annonces`, {
-        ...form,
-        capaciteDisponible: Number(form.capaciteDisponible),
-        prix: Number(form.prix)
-      });
-      setAnnonces([res.data, ...annonces]);
-      setForm({
-        depart: "",
-        etapes: "",
-        destination: "",
-        dateTrajet: "",
-        dimensions: "",
-        typeMarchandise: "",
-        capaciteDisponible: "",
-        description: "",
-        prix: ""
-      });
-      setMessage("Annonce créée avec succès !");
-      setError("");
-    } catch {
-      setError("Impossible de créer l'annonce. Vérifiez les champs et réessayez !");
-    }
-    setCreating(false);
-  };
-
-  const handleDeleteAnnonce = async (id) => {
-    if (!window.confirm("Voulez-vous vraiment supprimer cette annonce ?")) return;
-    try {
-      await axios.delete(`/api/annonces/${id}`);
-      setAnnonces(annonces.filter((a) => a._id !== id));
-      setMessage("Annonce supprimée avec succès !");
-      setError("");
-    } catch {
-      setError("Impossible de supprimer l'annonce. Réessayez plus tard !");
-    }
-  };
-
-  const handleAccepter = async (id) => {
-    try {
-      const res = await axios.put(`/api/demandes/${id}`, { statut: 'acceptée' });
-      setDemandes(demandes.map(d => d._id === id ? res.data : d));
-      setMessage("Demande acceptée ! Une notification sera envoyée à l'expéditeur.");
-      setError("");
-    } catch (err) {
-      setError("Impossible d'accepter la demande.");
-    }
-  };
-
-  const handleRefuser = async (id) => {
-    try {
-      const res = await axios.put(`/api/demandes/${id}`, { statut: 'refusée' });
-      setDemandes(demandes.map(d => d._id === id ? res.data : d));
-      setMessage("Demande refusée.");
-      setError("");
-    } catch (err) {
-      setError("Impossible de refuser la demande.");
-    }
-  };
-
-  const handleOpenEvalModal = (demande) => {
-    setEvaluation({
-      note: 0,
-      commentaire: '',
-      annonceId: demande.annonce._id,
-      utilisateurEvalueId: demande.expediteur._id
-    });
-    setShowEvalModal(true);
-  };
-  
-  const handleSendEvaluation = async (e) => {
-    e.preventDefault();
-    if (evaluation.note === 0) {
-      alert("Veuillez donner une note (au moins une étoile).");
-      return;
-    }
-    try {
-      await axios.post("/api/evaluations", evaluation);
-      setMessage("Évaluation envoyée avec succès !");
-      setShowEvalModal(false);
-    } catch (err) {
-      setError(err.response?.data?.message || "Erreur lors de l'envoi de l'évaluation.");
-    }
-  };
 
   const handleCardClick = (type) => {
     let content = { type: '', data: [] };
@@ -260,112 +152,8 @@ export default function ConducteurDashboard() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               <div className="lg:col-span-1 space-y-8">
                 <div className="bg-white p-6 rounded-xl shadow-lg border-t-4 border-green-600">
-                    <h2 className="text-2xl font-semibold text-gray-800 mb-4">Créer une Annonce</h2>
-                    <form onSubmit={handleCreateAnnonce} className="bg-white rounded shadow p-4 mb-8 flex flex-col gap-4 max-w-xl">
-                      <label className="font-medium">Départ
-                        <input
-                          type="text"
-                          name="depart"
-                          placeholder="Ville de départ"
-                          className="border p-2 rounded w-full mt-1"
-                          value={form.depart}
-                          onChange={e => setForm({ ...form, depart: e.target.value })}
-                          required
-                        />
-                      </label>
-                      <label className="font-medium">Étapes (optionnel)
-                        <input
-                          type="text"
-                          name="etapes"
-                          placeholder="Étapes du trajet"
-                          className="border p-2 rounded w-full mt-1"
-                          value={form.etapes}
-                          onChange={e => setForm({ ...form, etapes: e.target.value })}
-                        />
-                      </label>
-                      <label className="font-medium">Destination
-                        <input
-                          type="text"
-                          name="destination"
-                          placeholder="Ville d'arrivée"
-                          className="border p-2 rounded w-full mt-1"
-                          value={form.destination}
-                          onChange={e => setForm({ ...form, destination: e.target.value })}
-                          required
-                        />
-                      </label>
-                      <label className="font-medium">Date du trajet
-                        <input
-                          type="date"
-                          name="dateTrajet"
-                          className="border p-2 rounded w-full mt-1"
-                          value={form.dateTrajet}
-                          onChange={e => setForm({ ...form, dateTrajet: e.target.value })}
-                          required
-                        />
-                      </label>
-                      <label className="font-medium">Dimensions (ex: 2m x 1m x 1m)
-                        <input
-                          type="text"
-                          name="dimensions"
-                          placeholder="Dimensions du véhicule ou de l'espace"
-                          className="border p-2 rounded w-full mt-1"
-                          value={form.dimensions}
-                          onChange={e => setForm({ ...form, dimensions: e.target.value })}
-                          required
-                        />
-                      </label>
-                      <label className="font-medium">Type de marchandise
-                        <input
-                          type="text"
-                          name="typeMarchandise"
-                          placeholder="Type de marchandise acceptée"
-                          className="border p-2 rounded w-full mt-1"
-                          value={form.typeMarchandise}
-                          onChange={e => setForm({ ...form, typeMarchandise: e.target.value })}
-                          required
-                        />
-                      </label>
-                      <label className="font-medium">Capacité disponible (kg)
-                        <input
-                          type="number"
-                          name="capaciteDisponible"
-                          placeholder="Capacité en kg"
-                          className="border p-2 rounded w-full mt-1"
-                          value={form.capaciteDisponible}
-                          onChange={e => setForm({ ...form, capaciteDisponible: e.target.value })}
-                          required
-                          min="1"
-                        />
-                      </label>
-                      <label className="font-medium">Prix (DH)
-                        <input
-                          type="number"
-                          name="prix"
-                          placeholder="Prix proposé"
-                          className="border p-2 rounded w-full mt-1"
-                          value={form.prix}
-                          onChange={e => setForm({ ...form, prix: e.target.value })}
-                          required
-                          min="0"
-                        />
-                      </label>
-                      <label className="font-medium">Description
-                        <textarea
-                          name="description"
-                          placeholder="Description de l'annonce"
-                          className="border p-2 rounded w-full mt-1"
-                          value={form.description}
-                          onChange={e => setForm({ ...form, description: e.target.value })}
-                          required
-                        />
-                      </label>
-                      <button
-                        type="submit"
-                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded font-bold"
-                        disabled={!isFormValid || creating}
-                      >{creating ? "Création..." : "Créer l'annonce"}</button>
-                    </form>
+                  <h2 className="text-2xl font-semibold text-gray-800 mb-4">Créer une Annonce</h2>
+                  <CreateAnnonceForm />
                 </div>
               </div>
 
